@@ -4,7 +4,7 @@ A web app for a day-ahead power trading desk. It asks: **when we buy on D-1 usin
 
 It compares Elexon's wind generation forecast (WINDFOR) with metered wind outturn (FUELHH), selecting the forecast the desk would actually have had at its decision cutoff. It reports MAE, RMSE, bias, error percentiles, error by hour of day and by lead time, and a recommended shortfall buffer.
 
-**Live app:** _to be added after deployment_
+**Live app:** https://kjhwr-self.vercel.app
 
 One Docker image (FastAPI serving the API and the built React app) runs locally and on [Vercel's Container Runtime](https://vercel.com/docs/functions/runtimes/container).
 
