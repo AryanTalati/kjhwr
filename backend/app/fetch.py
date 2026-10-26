@@ -1,4 +1,4 @@
-"""Download WINDFOR forecasts and FUELHH wind actuals from Elexon and cache them as parquet.
+"""Download WINDFOR forecasts and FUELHH wind actuals from Elexon and cache them locally.
 
 Run once with ``python -m app.fetch``; the app then only reads the cache.
 Pass ``--force`` to refetch.
@@ -44,6 +44,24 @@ def parse_actuals(rows: list[dict]) -> pd.DataFrame:
     return df.sort_values("startTime").reset_index(drop=True)
 
 
+def write_cache(df: pd.DataFrame, path) -> None:
+    """Gzipped JSON lines with ISO-8601 UTC timestamps (written as plain strings for stable output)."""
+    out = df.copy()
+    for col in out.columns:
+        if isinstance(out[col].dtype, pd.DatetimeTZDtype):
+            out[col] = out[col].dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+    out.to_json(path, orient="records", lines=True, compression={"method": "gzip", "mtime": 0})
+
+
+def read_cache(path) -> pd.DataFrame:
+    df = pd.read_json(path, orient="records", lines=True, compression="gzip", convert_dates=False)
+    for col in ("publishTime", "startTime"):
+        if col in df.columns:
+            df[col] = pd.to_datetime(df[col], utc=True)
+    df["generation"] = df["generation"].astype("float64")
+    return df
+
+
 def fetch_all(force: bool = False) -> None:
     if not force and config.FORECASTS_PATH.exists() and config.ACTUALS_PATH.exists():
         log.info("Cache present in %s; skipping fetch (use --force to refetch)", config.DATA_DIR)
@@ -73,8 +91,8 @@ def fetch_all(force: bool = False) -> None:
             )
         )
 
-    forecasts.to_parquet(config.FORECASTS_PATH, index=False)
-    actuals.to_parquet(config.ACTUALS_PATH, index=False)
+    write_cache(forecasts, config.FORECASTS_PATH)
+    write_cache(actuals, config.ACTUALS_PATH)
     log.info(
         "Cached %d forecast rows (%d runs) and %d actual half-hours",
         len(forecasts),

@@ -22,6 +22,7 @@ DEFAULT_DAYS_BEFORE = 1
 DEFAULT_BUFFER_Q = 0.10
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
-FORECASTS_PATH = DATA_DIR / "windfor.parquet"
-ACTUALS_PATH = DATA_DIR / "fuelhh_wind.parquet"
+# Gzipped JSON lines: tiny, and readable by pandas without pyarrow (keeps the image slim).
+FORECASTS_PATH = DATA_DIR / "windfor.jsonl.gz"
+ACTUALS_PATH = DATA_DIR / "fuelhh_wind.jsonl.gz"
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"

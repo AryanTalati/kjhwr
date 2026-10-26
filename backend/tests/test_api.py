@@ -1,4 +1,4 @@
-"""Smoke tests for the API against the committed parquet cache (no network)."""
+"""Smoke tests for the API against the committed data cache (no network)."""
 
 from fastapi.testclient import TestClient
 

@@ -8,6 +8,7 @@ from typing import Literal
 
 import pandas as pd
 from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from . import config, metrics
@@ -15,6 +16,7 @@ from .data import load
 from .selection import all_pairs, filter_delivery, join_actuals, select_by_cutoff, select_by_horizon
 
 app = FastAPI(title="Wind forecast accuracy", version="1.0.0")
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 MAX_HORIZON = 66
 
@@ -71,19 +73,16 @@ def _hourly_periods(start: date, end: date) -> int:
 
 @lru_cache(maxsize=1)
 def full_coverage_horizon() -> int:
-    """Largest whole-hour horizon at which every default-window hour still has a forecast."""
+    """Largest whole-hour horizon at which every default-window hour still has a forecast.
+
+    Horizon mode needs a run with lead >= H, so a target is covered up to its longest available lead.
+    """
+    p = filter_delivery(pairs(), config.DEFAULT_DELIVERY_START, config.DEFAULT_DELIVERY_END)
     expected = _hourly_periods(config.DEFAULT_DELIVERY_START, config.DEFAULT_DELIVERY_END)
-    best = 0
-    for h in range(0, MAX_HORIZON + 1):
-        df = filter_delivery(
-            joined(Selection("horizon", time(11), 1, float(h))),
-            config.DEFAULT_DELIVERY_START,
-            config.DEFAULT_DELIVERY_END,
-        )
-        if len(df) < expected:
-            break
-        best = h
-    return best
+    longest = p.groupby("startTime")["lead_hours"].max()
+    if len(longest) < expected:
+        return 0
+    return min(int(longest.min()), MAX_HORIZON)
 
 
 def _check_window(start: date, end: date) -> None:
