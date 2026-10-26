@@ -7,3 +7,4 @@ frontend/dist/
 backend/static/
 .DS_Store
 .env
+*.tsbuildinfo
