@@ -1,0 +1,10 @@
+# Keep the upload small; the Dockerfile builds everything it needs from source.
+**/node_modules
+**/.venv
+**/__pycache__
+**/.pytest_cache
+frontend/dist
+backend/static
+*.tsbuildinfo
+.DS_Store
+.env
