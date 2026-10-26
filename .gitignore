@@ -8,3 +8,5 @@ backend/static/
 .DS_Store
 .env
 *.tsbuildinfo
+.vercel
+.env*
