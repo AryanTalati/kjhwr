@@ -213,8 +213,6 @@ Runtime logs (the container's stdout and stderr) are under the project's **Logs*
 
 ## Use of AI tools
 
-This project was built with the help of **Claude Code** (Anthropic's AI coding assistant), which did the following:
-- inspected the live Elexon API responses and planned the approach;
-- wrote the backend, frontend, tests, Docker and Vercel setup and this README.
+This project was AI-assisted, using **Claude Code** (Anthropic's AI coding assistant).
 
-Design decisions were reviewed and confirmed by a person: the scope of the delivery window, matching forecasts to actuals only on the hour, and the deployment approach. Commits co-authored by the assistant are marked as such.
+Design decisions were reviewed and confirmed by Aryan Talati: the scope of the delivery window, matching forecasts to actuals only on the hour, and the deployment approach. Commits co-authored by the assistant are marked as such.
